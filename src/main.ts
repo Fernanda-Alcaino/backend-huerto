@@ -5,24 +5,29 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 
 async function bootstrap() {
-    // Cambiamos el tipo a NestExpressApplication para manejar archivos estáticos
-    const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-    // 1. ACTIVAR CORS (Para que React se conecte)
-    app.enableCors();
+  // 1. CORS CONFIGURADO CORRECTAMENTE
+  // Esto es vital para que tu Frontend (http://localhost:5173) pueda hacer login
+  app.enableCors({
+    origin: ['http://localhost:5173', 'http://localhost:3000'], // Puertos comunes de React
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
 
-    // 2. ACTIVAR VALIDACIONES (DTOs funcionan gracias a esto)
-    app.useGlobalPipes(new ValidationPipe({
-        whitelist: true, // Elimina datos basura que envíen por error
-        forbidNonWhitelisted: true, // Da error si envían campos que no existen
-    }));
+  // 2. PIPES DE VALIDACIÓN (Para que funcionen los DTOs)
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true, // Elimina datos que no estén en el DTO
+    forbidNonWhitelisted: true, // Lanza error si envían datos extra
+    transform: true, // Convierte tipos automáticamente (ej: string "1" a number 1)
+  }));
 
-    // 3. SERVIR IMÁGENES PÚBLICAS
-    // Esto hace que la carpeta 'uploads' sea accesible en /uploads
-    app.useStaticAssets(join(__dirname, '..', 'uploads'), {
-        prefix: '/uploads/',
-    });
+  // 3. ARCHIVOS ESTÁTICOS (Imágenes)
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads/',
+  });
 
-    await app.listen(3000);
+  await app.listen(3000);
+  console.log(`🚀 Servidor NestJS corriendo en: http://localhost:3000`);
 }
 bootstrap();
