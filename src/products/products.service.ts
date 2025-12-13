@@ -1,41 +1,51 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateProductDto } from './dto/create-product.dto';
-import { Product } from './entities/product.entity';
+import { Product } from './entities/product.entity'; // Asegúrate de tener tu Entidad creada
 
 @Injectable()
 export class ProductsService {
 
-    // Inyectamos el Repositorio de TypeORM para manejar la tabla 'products'
-    constructor(
-        @InjectRepository(Product)
-        private readonly productRepository: Repository<Product>,
-    ) {}
+  constructor(
+    @InjectRepository(Product)
+    private productRepository: Repository<Product>,
+  ) {}
 
-    // CREAR (POST)
-    async create(createProductDto: CreateProductDto) {
-        const product = this.productRepository.create(createProductDto);
-        return await this.productRepository.save(product);
-    }
+  // POST: Crear
+  async create(createProductDto: CreateProductDto) {
+    const product = this.productRepository.create(createProductDto);
+    return await this.productRepository.save(product);
+  }
 
-    // LEER TODOS (GET)
-    async findAll() {
-        return await this.productRepository.find();
-    }
+  // GET: Traer todos
+  async findAll() {
+    return await this.productRepository.find();
+  }
 
-    // LEER UNO (GET :id)
-    async findOne(id: number) {
-        const product = await this.productRepository.findOneBy({ id });
-        if (!product) {
-            throw new NotFoundException(`Producto con ID ${id} no encontrado`);
-        }
-        return product;
+  // GET: Traer uno por ID
+  async findOne(id: number) {
+    const product = await this.productRepository.findOneBy({ id });
+    if (!product) {
+      throw new NotFoundException(`Producto con ID ${id} no encontrado`); // Retorna 404
     }
+    return product;
+  }
 
-    // BORRAR (DELETE)
-    async remove(id: number) {
-        const product = await this.findOne(id); // Reutilizamos la lógica de buscar
-        return await this.productRepository.remove(product);
-    }
+  // PATCH: Actualizar
+  async update(id: number, updateProductDto: UpdateProductDto) {
+    // Primero verificamos que exista
+    const product = await this.findOne(id);
+    // Fusionamos los cambios
+    this.productRepository.merge(product, updateProductDto);
+    return await this.productRepository.save(product);
+  }
+
+  // DELETE: Borrar
+  async remove(id: number) {
+    const product = await this.findOne(id); // Reusamos findOne para validar 404
+    await this.productRepository.remove(product);
+    return { message: `Producto #${id} eliminado correctamente` };
+  }
 }

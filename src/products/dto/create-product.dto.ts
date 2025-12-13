@@ -1,15 +1,17 @@
-import { IsString, IsNumber, IsPositive, MinLength } from 'class-validator';
+import { IsString, IsNumber, IsPositive, IsOptional } from 'class-validator';
 
 export class CreateProductDto {
-    @IsString()
-    @MinLength(3, { message: 'El nombre debe tener al menos 3 letras' })
-    name: string;
+  @IsString({ message: 'El nombre debe ser texto' })
+  name: string;
 
-    @IsNumber()
-    @IsPositive({ message: 'El precio debe ser positivo' })
-    price: number;
+  @IsString()
+  @IsOptional()
+  description?: string;
 
-    // La imagen es opcional al crear, la subiremos aparte o pondremos un string
-    @IsString()
-    image: string;
+  @IsNumber({}, { message: 'El precio debe ser un número' })
+  @IsPositive({ message: 'El precio debe ser mayor a 0' })
+  price: number;
+
+  @IsNumber()
+  stock: number;
 }

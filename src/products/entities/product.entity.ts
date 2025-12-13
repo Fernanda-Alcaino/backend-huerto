@@ -1,16 +1,19 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity('products') // Nombre de la tabla en MySQL
+@Entity('products') // Nombre de la tabla en PostgreSQL
 export class Product {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    name: string;
+  @Column()
+  name: string;
 
-    @Column('decimal', { precision: 10, scale: 2 })
-    price: number;
+  @Column({ nullable: true })
+  description: string;
 
-    @Column()
-    image: string; // Guardaremos solo el nombre "tomate.jpg"
+  @Column('decimal') // O 'float'
+  price: number;
+
+  @Column('int')
+  stock: number;
 }
