@@ -12,25 +12,28 @@ export class ProductsService {
     private readonly productRepository: Repository<Product>,
   ) {}
 
-  // Crear producto (lo usarás para subir nuevos items)
   create(createProductDto: CreateProductDto) {
+    // Retorna el producto creado
     return this.productRepository.save(createProductDto);
   }
 
-  // 👇 FUNCIÓN CLAVE: Devuelve todos los productos
   findAll() {
+    // Retorna todos los productos
     return this.productRepository.find();
   }
 
+  // 👈 Esta función es vital para findOne() en el controlador
   findOne(id: number) {
     return this.productRepository.findOneBy({ id });
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {
+    // Retorna el resultado de la operación (ej: {affected: 1})
     return this.productRepository.update(id, updateProductDto);
   }
 
   remove(id: number) {
+    // Retorna el resultado de la operación (ej: {affected: 1})
     return this.productRepository.delete(id);
   }
 }

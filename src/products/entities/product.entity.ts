@@ -1,23 +1,24 @@
+// src/products/entities/product.entity.ts
+
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity('products')
+@Entity('products') // TypeORM usará este nombre de tabla
 export class Product {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  name: string;
+  name: string; // <-- Estructura deseada
 
   @Column('text')
   description: string;
 
-  @Column('decimal')
+  @Column('decimal') // Tipo para manejar precios
   price: number;
 
   @Column()
   stock: number;
 
-  // Ruta del archivo de imagen
   @Column({ nullable: true })
-  imageUrl: string;
+  imageUrl: string; // <-- Estructura deseada
 }
