@@ -2,10 +2,28 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ProductsModule } from './products/products.module'; // Importa tu módulo de productos
+import { ProductsModule } from './products/products.module';
 
+// 🚨 IMPORTACIONES NECESARIAS PARA SERVIR ARCHIVOS ESTÁTICOS
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path'; // <--- ¡Asegúrate de que esta línea esté presente!
 @Module({
   imports: [
+    // ----------------------------------------------------
+    // 1. CONFIGURACIÓN DEL SERVIDOR DE ARCHIVOS ESTÁTICOS
+    // ----------------------------------------------------
+    ServeStaticModule.forRoot({
+      // Define la ruta física donde NestJS debe buscar los archivos (uploads)
+      // join(__dirname, '..', 'uploads') apunta a la carpeta 'uploads' en la raíz.
+      rootPath: join(__dirname, '..', 'uploads'),
+
+      // Define la URL pública para acceder a ellos: http://localhost:3000/api/uploads/
+      serveRoot: '/api/uploads',
+    }),
+
+    // ----------------------------------------------------
+    // 2. CONFIGURACIÓN DE BASE DE DATOS (TYPEORM)
+    // ----------------------------------------------------
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',
@@ -14,17 +32,19 @@ import { ProductsModule } from './products/products.module'; // Importa tu módu
       password: '',
       database: 'huerto_db',
 
-      // 🚨 ¡IMPORTANTE! Archivos de entidades.
-      // Si TypeORM no las encuentra, la app fallará.
-      // Asume que las entidades están en carpetas dentro de src/
+      // Carga automáticamente las Entidades que encuentre en las carpetas.
       autoLoadEntities: true,
 
-      // 🚨 ¡CLAVE! CAMBIAR A TRUE
-      // Esto permite que TypeORM sincronice la estructura de tu Entidad con la BD.
-      // Úsalo SÓLO en desarrollo. ¡Cámbialo a 'false' antes de subir a producción!
-      synchronize: true,
+      // 🚨 ¡CLAVE! CAMBIAR A FALSE
+      // Ya que la BD está creada manualmente y poblada, desactivamos la sincronización.
+      // Esto previene sobrescribir tu base de datos si ocurre un error.
+      synchronize: false,
     }),
-    ProductsModule, // Asegúrate de que tu módulo de productos esté en los imports
+
+    // ----------------------------------------------------
+    // 3. MÓDULOS DE LA APLICACIÓN
+    // ----------------------------------------------------
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

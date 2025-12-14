@@ -2,23 +2,26 @@
 
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity('products') // TypeORM usará este nombre de tabla
+@Entity('products')
 export class Product {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  name: string; // <-- Estructura deseada
+  @Column() // Coincide con la columna 'name' de la BD
+  name: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  price: number;
 
   @Column('text')
   description: string;
 
-  @Column('decimal') // Tipo para manejar precios
-  price: number;
-
   @Column()
   stock: number;
 
+  @Column({ nullable: true }) // Coincide con la columna 'imageUrl' de la BD
+  imageUrl: string;
+
   @Column({ nullable: true })
-  imageUrl: string; // <-- Estructura deseada
+  category: string;
 }
