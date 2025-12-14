@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductsService } from './products.service';
 import { ProductsController } from './products.controller';
-import { Product } from './entities/product.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Product } from './entities/product.entity'; // 👈 Asegúrate de que esta ruta sea correcta
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Product])], // <--- ESTO ES CRUCIAL
-    controllers: [ProductsController],
-    providers: [ProductsService],
+  imports: [TypeOrmModule.forFeature([Product])], // 👈 Conectamos la entidad a TypeORM
+  controllers: [ProductsController],
+  providers: [ProductsService],
 })
 export class ProductsModule {}

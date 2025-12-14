@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity('products') // Nombre de la tabla en PostgreSQL
+@Entity('products')
 export class Product {
   @PrimaryGeneratedColumn()
   id: number;
@@ -8,12 +8,16 @@ export class Product {
   @Column()
   name: string;
 
-  @Column({ nullable: true })
+  @Column('text')
   description: string;
 
-  @Column('decimal') // O 'float'
+  @Column('decimal')
   price: number;
 
-  @Column('int')
+  @Column()
   stock: number;
+
+  // Ruta del archivo de imagen
+  @Column({ nullable: true })
+  imageUrl: string;
 }
