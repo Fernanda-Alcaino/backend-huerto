@@ -1,41 +1,25 @@
-/* eslint-disable */
-// 👆 Esta línea de arriba desactiva las quejas de estilo en este archivo
-
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+// src/auth/auth.service.ts
+import { Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
-import { JwtService } from '@nestjs/jwt';
+import { User } from '../users/entities/user.entity'; // 👈 Asegúrate de importar esto
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private usersService: UsersService,
-    private jwtService: JwtService,
-  ) {}
+  constructor(private usersService: UsersService) {}
 
-  async login(loginDto: any) {
-    // Usamos 'any' para evitar líos de tipos ahora mismo
-    const user: any = await this.usersService.findOneByEmail(loginDto.email);
+  // 🚨 CORRECCIÓN: Cambiamos ': Promise<any>' por ': Promise<User | null>'
+  async validateUser(email: string, pass: string): Promise<User | null> {
+    const user = await this.usersService.findOne(email);
 
-    // Si no existe, lanzamos error
-    if (!user) {
-      throw new UnauthorizedException('Credenciales inválidas');
+    if (user && user.password === pass) {
+      // Quitamos la contraseña del objeto antes de devolverlo
+      const { password, ...result } = user;
+
+      // 'as User' es un truco para decirle a TypeScript que confíe
+      // en que esto sigue siendo un usuario, aunque le quitamos el password.
+      return result as User;
     }
 
-    // Comparamos contraseña
-    if (user.password !== loginDto.password) {
-      throw new UnauthorizedException('Contraseña incorrecta');
-    }
-
-    // Generamos el Token
-    const payload = { email: user.email, sub: user.id, role: user.role };
-
-    return {
-      access_token: this.jwtService.sign(payload),
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      },
-    };
+    return null;
   }
 }
